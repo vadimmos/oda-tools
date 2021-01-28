@@ -1,6 +1,7 @@
 {
 	"name": "oda-tools",
 	"displayName": "oda-tools",
+	"publisher": "vadimmos",
 	"description": "Support tools for working with the framework ODA.js",
 	"version": "0.0.1",
 	"engines": {
