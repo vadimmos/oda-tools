@@ -10,16 +10,21 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:oda-tools.helloWorld"
+		"onCommand:oda-tools.run-oda-tools",
+		"workspaceContains:*/oda.js"
+
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "oda-tools.helloWorld",
+				"command": "oda-tools.run-oda-tools",
 				"title": "Hello World"
 			}
-		]
+		],
+			"capabilities": {
+				"definitionProvider": "true"
+			}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
