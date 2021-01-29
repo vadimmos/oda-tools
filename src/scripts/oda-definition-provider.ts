@@ -18,6 +18,7 @@ export class ODADefinitionProvider implements vscode.DefinitionProvider {
     if (range) {
       const idExpr = document.getText(range);
       const cmpName = (idExpr.split('/')[1] || idExpr).replace(odaPrefixRegExp, '');
+      if (cmpName === 'this') { return undefined; }
       const cpt = await findOdaComponent(cmpName, document);
       return cpt ? cpt.location : undefined;
     }
