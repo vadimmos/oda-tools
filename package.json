@@ -3,6 +3,8 @@
 	"displayName": "oda-tools",
 	"publisher": "vadimmos",
 	"description": "Support tools for working with the framework ODA.js",
+	"icon": "icon.png",
+	"repository": "https://github.com/vadimmos/oda-tools",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.52.0"
