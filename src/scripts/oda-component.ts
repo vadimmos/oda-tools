@@ -1,22 +1,20 @@
 import * as vscode from 'vscode';
+import { searchFilesByExtensionWithText } from './search-files-by-extension-with-text';
 
 const CACHE = new Map;
 
-const importsRegExp = /(?<=['"])@[^@]*\/[^@"',]*(?=['"]\s*(, ?)?)/;
-const htmlTagRegExp = /(?<=<)[\w\d-]*(?= )/;
-const odaPrefixRegExp = /^(oda(nt)?-)/;
 
-export async function findOdaComponent(document: vscode.TextDocument, position: vscode.Position): Promise<OdaComponent | undefined> {
-  const importsRange = document.getWordRangeAtPosition(position, importsRegExp);
-  const htmlTagRange = document.getWordRangeAtPosition(position, htmlTagRegExp);
-  if (!importsRange && !htmlTagRange){
-    return;
-  }
-  const idExpr = document.getText(importsRange || htmlTagRange);
-  const cmpName = (idExpr.split('/')[1] || idExpr).replace(odaPrefixRegExp, '');
+export async function findOdaComponent(cmpName: string, fromDocument?: vscode.TextDocument): Promise<OdaComponent | undefined> {
   const cpRegExpFull = new RegExp(`(?<=oda(nt)?\\s*\\(\\s*{\\s*is\\s*:\\s*['"])(oda(nt)?-)?${cmpName}(?=["']\\s*,)`, 'ig');
   const cpRegExpShort = new RegExp(`(?<=is\\s*:\\s*['"])(oda(nt)?-)?${cmpName}(?=["']\\s*,)`, 'ig');
-  const possibleUries = [document.uri, ...(await vscode.workspace.findFiles(`**/${cmpName}/${cmpName}.js`))];
+  const possibleUries = fromDocument ? [fromDocument.uri] : [];
+  possibleUries.push(...(await vscode.workspace.findFiles(`**/${cmpName}/${cmpName}.js`)));
+
+  if ( possibleUries.length <= 1 && vscode.workspace.workspaceFolders) {
+    for (const f of vscode.workspace.workspaceFolders) {
+      possibleUries.push(...(await searchFilesByExtensionWithText(f.uri, '.js', cpRegExpFull)));
+    }
+  }
 
   for (const uri of possibleUries) {
     const doc = await vscode.workspace.openTextDocument(uri);
