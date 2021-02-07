@@ -14,8 +14,7 @@
 	],
 	"activationEvents": [
 		"onCommand:oda-tools.run-oda-tools",
-		"workspaceContains:*/oda.js"
-
+		"workspaceContains:**/oda.js"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -25,9 +24,9 @@
 				"title": "Hello World"
 			}
 		],
-			"capabilities": {
-				"definitionProvider": "true"
-			}
+		"capabilities": {
+			"definitionProvider": "true"
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
