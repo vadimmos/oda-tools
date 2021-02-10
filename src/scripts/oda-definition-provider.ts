@@ -1,26 +1,21 @@
 import * as vscode from 'vscode';
-import { findOdaComponent } from './oda-component';
+import { findOdaComponentDefinition } from './oda-component';
+import { getOdaDefinition, getOdaSubPropertyDefinition } from './oda-scope';
 
-const importsRegExp = /(?<=['"])@[^@]*\/[^@"',]*(?=['"]\s*(, ?)?)/;
-const htmlTagRegExp = /(?<=<)[\w\d-]*(?= )/;
-const extendsRegExp = /((?<=extends\s*:\s*["']|(,\s*))[^, '"]*(?=["']|(,\s*)))/;
-const odaPrefixRegExp = /^(oda(nt)?-)/;
 
+const odaRegExp = /ODA[(\.]/;
+const odaPropRegExp = /(?<=ODA\.)[^\.\s\(]*(?=[\(\.])/;
 export class ODADefinitionProvider implements vscode.DefinitionProvider {
   public async provideDefinition(
     document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken
   ): Promise<vscode.Location | undefined> {
-    let range = [
-      document.getWordRangeAtPosition(position, importsRegExp),
-      document.getWordRangeAtPosition(position, htmlTagRegExp),
-      document.getWordRangeAtPosition(position, extendsRegExp)
-    ].find(Boolean);
-    if (range) {
-      const idExpr = document.getText(range);
-      const cmpName = (idExpr.split('/')[1] || idExpr).replace(odaPrefixRegExp, '');
-      if (cmpName === 'this') { return undefined; }
-      const cpt = await findOdaComponent(cmpName, document);
-      return cpt ? cpt.location : undefined;
+    if (document.getWordRangeAtPosition(position, odaRegExp)) {
+      return getOdaDefinition();
     }
+    const subProperty = document.getWordRangeAtPosition(position, odaPropRegExp);
+    if (subProperty){
+      return getOdaSubPropertyDefinition(document.getText(subProperty), document, position);
+    }
+    return findOdaComponentDefinition(document, position);
   }
 }

@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import { searchFilesByExtensionWithText } from './search-files-by-extension-with-text';
 
+const importsRegExp = /(?<=['"])@[^@]*\/[^@"',]*(?=['"]\s*(, ?)?)/;
+const htmlTagRegExp = /(?<=<)[\w\d-]*(?= )/;
+const extendsRegExp = /((?<=extends\s*:\s*["']|(,\s*))[^, '"]*(?=["']|(,\s*)))/;
+const odaPrefixRegExp = /^(oda(nt)?-)/;
+
 const COMPONENTS_CACHE = new Map;
 const CP_REG_EXP_FULL_CACHE = new Map;
 const CP_REG_EXP_SHORT_CACHE = new Map;
@@ -18,8 +23,31 @@ function getCpRegExpShort(name: string) {
   return CP_REG_EXP_SHORT_CACHE.get(name);
 }
 
-export async function findOdaComponent(name: string, fromDocument?: vscode.TextDocument): Promise<OdaComponent | undefined> {
+export async function findOdaComponentDefinition(document: vscode.TextDocument, position: vscode.Position, cmpName?: string) {
+  if (!cmpName) {
+    const range = [
+      document.getWordRangeAtPosition(position, importsRegExp),
+      document.getWordRangeAtPosition(position, htmlTagRegExp),
+      document.getWordRangeAtPosition(position, extendsRegExp)
+    ].find(Boolean);
+    if (range) {
+      const idExpr = document.getText(range);
+      cmpName = (idExpr.split('/')[1] || idExpr).replace(odaPrefixRegExp, '');
+      if (cmpName === 'this') { return undefined; }
+      const cpt = await findOdaComponent(cmpName, document);
+      return cpt ? cpt.location : undefined;
+    }
+  }
+  if (cmpName) {
+    if (cmpName === 'this') { return undefined; }
+    const cpt = await findOdaComponent(cmpName, document);
+    return cpt ? cpt.location : undefined;
+  }
+}
 
+export async function findOdaComponent(name: string, fromDocument?: vscode.TextDocument): Promise<OdaComponent | undefined> {
+  const cpt = await getOdaComponent(name);
+  if (cpt) { return cpt; }
   if (fromDocument) {
     const res = await getRangeInUries([fromDocument.uri], name);
     if (res && res.range && res.uri) {
@@ -69,7 +97,7 @@ export async function findOdaComponent(name: string, fromDocument?: vscode.TextD
   // throw new Error(`component: "${cmpName}" is not defined`);
 
 }
-async function getRangeInUries(possibleUries: vscode.Uri[], name: string) {
+export async function getRangeInUries(possibleUries: vscode.Uri[], name: string) {
   for (const uri of possibleUries) {
     const doc = await vscode.workspace.openTextDocument(uri);
     let range = doc.getWordRangeAtPosition(new vscode.Position(0, 0), getCpRegExpFull(name));
@@ -85,8 +113,8 @@ async function getRangeInUries(possibleUries: vscode.Uri[], name: string) {
     if (range) { return { range, uri }; }
   }
 }
-export function getOdaComponent(name: string, location: vscode.Location, document?: vscode.TextDocument) {
-  if (!COMPONENTS_CACHE.get(name)) {
+export function getOdaComponent(name: string, location?: vscode.Location, document?: vscode.TextDocument) {
+  if (!COMPONENTS_CACHE.get(name) && location) {
     COMPONENTS_CACHE.set(name, new OdaComponent(name, location, document));
   }
   return COMPONENTS_CACHE.get(name);
