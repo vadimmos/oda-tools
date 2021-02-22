@@ -1,6 +1,6 @@
-export const importing = /(?<=['"`])@[^@\/]*\/[^@"',]*(?=['"`]\s*(, ?)?)/;
 export const htmlTag = /(?<=<\/?)[\w\d-]*(?=[ >])/;
-export const extending = /(?<=extends\s*:\s*.*,?)[^, '"`]*(?=["'`]|(,\s*))/;
+export const importing = /(?<=['"`,]\s*)@[^@\/]*\/[^@"'`,]*(?=['"`,])/;
+export const extending = /(?<=extends\s*:\s*['"`]([^,\s'"`]*,\s*)*)[^,\s'"`]*(?=["'`]|(,\s*))/;
 export const odaPrefix = /^(oda(nt)?-)/;
 
 const CP_REG_EXP_FULL_CACHE = new Map;
