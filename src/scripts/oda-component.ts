@@ -6,8 +6,8 @@ import * as RE from './regExps';
 const COMPONENTS_CACHE: Map<string, OdaComponent> = new Map;
 
 export async function findOdaComponentDefinition(document: vscode.TextDocument, position: vscode.Position, name?: string, token?: vscode.CancellationToken) {
+  const range = getRange(document, position);
   if (!name) {
-    const range = getRange(document, position);
     if (range) {
       const idExpr = document.getText(range);
       name = (idExpr.split('/')[1] || idExpr).replace(RE.odaPrefix, '');
@@ -16,7 +16,9 @@ export async function findOdaComponentDefinition(document: vscode.TextDocument, 
   if (name) {
     if (name === 'this') { return undefined; }
     const cpt = await findOdaComponent(name, document, token);
-    return cpt ? cpt.location : undefined;
+    if(cpt){
+      return [new LocLink(cpt.location.uri, cpt.location.range, range)];
+    }
   }
 }
 
@@ -99,4 +101,17 @@ export class OdaComponent {
     'style': {},
     'class': {}
   };
+}
+
+class LocLink implements vscode.LocationLink{
+  originSelectionRange?: vscode.Range;
+  targetUri: vscode.Uri;
+  targetRange: vscode.Range;
+  targetSelectionRange?: vscode.Range;
+  constructor(targetUri: vscode.Uri, targetRange: vscode.Range, originSelectionRange?: vscode.Range, targetSelectionRange?: vscode.Range){
+    this.originSelectionRange = originSelectionRange;
+    this.targetUri = targetUri;
+    this.targetRange = targetRange;
+    this.targetSelectionRange = targetSelectionRange;
+  }
 }
