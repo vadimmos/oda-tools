@@ -6,7 +6,7 @@ import { getOdaDefinition, getOdaSubPropertyDefinition } from './oda-scope';
 const odaRegExp = /ODA[(\.]/;
 const odaPropRegExp = /(?<=ODA\.)[^\.\s\(]*(?=[\(\.])/;
 export class ODADefinitionProvider implements vscode.DefinitionProvider {
-  public async provideDefinition(
+  public async provideDefinition( 
     document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken
   ): Promise<vscode.Location | undefined> {
     if (document.getWordRangeAtPosition(position, odaRegExp)) {
