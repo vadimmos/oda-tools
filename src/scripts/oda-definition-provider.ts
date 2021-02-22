@@ -14,8 +14,8 @@ export class ODADefinitionProvider implements vscode.DefinitionProvider {
     }
     const subProperty = document.getWordRangeAtPosition(position, odaPropRegExp);
     if (subProperty){
-      return getOdaSubPropertyDefinition(document.getText(subProperty), document, position);
+      return getOdaSubPropertyDefinition(document.getText(subProperty), document, position, token);
     }
-    return findOdaComponentDefinition(document, position);
+    return findOdaComponentDefinition(document, position, undefined, token);
   }
 }

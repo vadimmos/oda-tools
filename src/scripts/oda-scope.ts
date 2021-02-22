@@ -31,14 +31,14 @@ export async function getOdaDefinition() {
 
 const propsMap: { [key: string]: vscode.Location } = {};
 
-export async function getOdaSubPropertyDefinition(name: string, document: vscode.TextDocument, position: vscode.Position) {
+export async function getOdaSubPropertyDefinition(name: string, document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
   await getOdaDefinition();
   if (odaUri && odaDoc) {
     if (propsMap[name]) {
       return propsMap[name];
     } else {
       if (name.startsWith('show') && name !== 'show') {
-        return findOdaComponentDefinition(document, position, `oda-${name.toLowerCase().replace('show', '')}`);
+        return findOdaComponentDefinition(document, position, `oda-${name.toLowerCase().replace('show', '')}`, token);
       } else {
         const expr = getOdaPropDefRegExp(name);
         let range;
@@ -54,7 +54,6 @@ export async function getOdaSubPropertyDefinition(name: string, document: vscode
           return propsMap[name];
         }
       }
-
     }
   }
 }
@@ -63,6 +62,6 @@ function getOdaPropDefRegExp(name: string) {
   // if (name.startsWith('show') && name !== 'show') {
   //   return new RegExp(`(?<=ODA)\\[\\('show\\-' \\+ id\\)\\.toCamelCase\\(\\)\\]\\s+(?=[=])`);
   // } else {
-    return new RegExp(`(?<=ODA\\.)${name}\\s+(?=[=])`);
+  return new RegExp(`(?<=ODA\\.)${name}\\s+(?=[=])`);
   // }
 }
