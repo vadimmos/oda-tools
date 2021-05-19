@@ -21,9 +21,42 @@
 		"commands": [
 			{
 				"command": "oda-tools.run-oda-tools",
-				"title": "Hello World"
+				"title": "ODA test command"
+			},
+			{
+				"command": "oda-tools.Static-server",
+				"title": "ODA Static server"
 			}
 		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "resourceLangId == javascript || resourceLangId == html",
+					"command": "oda-tools.Static-server",
+					"alt": "oda-tools.Static-server",
+					"title": "ODA Static server",
+					"group": "oda-tools"
+				}
+			],
+			"editor/title/context":[
+				{
+					"when": "resourceLangId == javascript || resourceLangId == html",
+					"command": "oda-tools.Static-server",
+					"alt": "oda-tools.Static-server",
+					"title": "ODA Static server",
+					"group": "oda-tools"
+				}
+			],
+			"editor/context":[
+				{
+					"when": "resourceLangId == javascript || resourceLangId == html",
+					"command": "oda-tools.Static-server",
+					"alt": "oda-tools.Static-server",
+					"title": "ODA Static server",
+					"group": "oda-tools"
+				}
+			]
+		},
 		"capabilities": {
 			"definitionProvider": "true"
 		}
