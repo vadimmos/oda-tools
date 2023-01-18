@@ -1,15 +1,24 @@
 import * as vscode from 'vscode';
-import { ODADefinitionProvider } from './scripts/oda-definition-provider';
+import { CACHE_VERSION, EXTENSION_NAME } from './constants';
 
-export function activate(context: vscode.ExtensionContext) {
-	context.subscriptions.push(vscode.languages.registerDefinitionProvider({ scheme: 'file', language: 'javascript' }, new ODADefinitionProvider()));
-	
+export async function activate(context: vscode.ExtensionContext) {
 
-	context.subscriptions.push(vscode.commands.registerCommand('oda-tools.Static-server', () => {
-		console.log('ODA Static server');
-	}));
+	const defaultData = { [CACHE_VERSION]: {test_data: 0}};
+  const CACHE_NAME = `${EXTENSION_NAME}_cache`;
+	const cache = context.workspaceState.get(CACHE_NAME, defaultData);
 
-	console.log('"oda-tools" is now active!');
+	cache[CACHE_VERSION]['test_data'] = 1;
+	await context.workspaceState.update(CACHE_NAME, cache);
+
+	console.log('cache test, value= ', cache[CACHE_VERSION]['test_data'])
+
+	console.log('Congratulations, your extension "oda-tools" is now active!');
+	let disposable = vscode.commands.registerCommand('oda-tools.helloWorld', () => {
+		vscode.window.showInformationMessage('Hello World from oda-tools!');
+	});
+
+	context.subscriptions.push(disposable);
 }
 
-export function deactivate() { }
+// This method is called when your extension is deactivated
+export function deactivate() {}
